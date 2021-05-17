@@ -393,7 +393,7 @@ for s, x, y in zip(state, x, y):
 
 
 # #### 3.5.3.3 Average ticket price by state<a id='3.5.3.3_Average_ticket_price_by_state'></a>
-q
+
 # Here, all point markers for the states are the same size and colour. You've visualized relationships between the states based on features such as the total skiable terrain area, but your ultimate interest lies in ticket prices. You know ticket prices for resorts in each state, so it might be interesting to see if there's any pattern there.
 
 # In[33]:

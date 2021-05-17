@@ -117,7 +117,7 @@ ski_data.head().T
 big_mountain = ski_data[ski_data.Name == 'Big Mountain Resort']
 
 
-# In[6]:
+# In[4]:
 
 
 big_mountain.T
@@ -161,11 +161,10 @@ X_train, X_test, y_train, y_test = train_test_split(ski_data.drop(columns='Adult
                                                     random_state=47)
 
 
-# In[14]:
+# In[10]:
 
 
 X_train.shape, X_test.shape
-type(X_train)
 
 
 # In[11]:
@@ -174,7 +173,7 @@ type(X_train)
 y_train.shape, y_test.shape
 
 
-# In[ ]:
+# In[12]:
 
 
 #Code task 1#
@@ -188,7 +187,7 @@ X_test.drop(columns=names_list, inplace=True)
 X_train.shape, X_test.shape
 
 
-# In[ ]:
+# In[13]:
 
 
 #Code task 2#
@@ -196,7 +195,7 @@ X_train.shape, X_test.shape
 X_train.dtypes
 
 
-# In[ ]:
+# In[14]:
 
 
 #Code task 3#
@@ -210,7 +209,7 @@ X_test.dtypes
 
 # A good place to start is to see how good the mean is as a predictor. In other words, what if you simply say your best guess is the average price?
 
-# In[ ]:
+# In[15]:
 
 
 #Code task 4#
@@ -221,7 +220,7 @@ train_mean
 
 # `sklearn`'s `DummyRegressor` easily does this:
 
-# In[ ]:
+# In[16]:
 
 
 #Code task 5#
@@ -231,6 +230,7 @@ train_mean
 dumb_reg = DummyRegressor(strategy='mean')
 dumb_reg.fit(X_train,y_train)
 dumb_reg.constant_
+
 
 # How good is this? How closely does this match, or explain, the actual values? There are many ways of assessing how good one set of values agrees with another, which brings us to the subject of metrics.
 
@@ -264,7 +264,7 @@ dumb_reg.constant_
 # 
 # Putting it into words, it's one minus the ratio of the residual variance to the original variance. Thus, the baseline model here, which always predicts $\bar{y}$, should give $R^2=0$. A model that perfectly predicts the observed values would have no residual error and so give $R^2=1$. Models that do worse than predicting the mean will have increased the sum of squares of residuals and so produce a negative $R^2$.
 
-# In[ ]:
+# In[17]:
 
 
 #Code task 6#
@@ -332,7 +332,7 @@ r_squared(y_test, y_te_pred)
 # 
 # $$MAE = \frac{1}{n}\sum_i^n|y_i - \hat{y}|$$
 
-# In[ ]:
+# In[22]:
 
 
 #Code task 7#
@@ -346,8 +346,8 @@ def mae(y, ypred):
     y -- the observed values
     ypred -- the predicted values
     """
-    abs_error = np.abs(___ - ___)
-    mae = np.mean(___)
+    abs_error = np.abs(y - ypred)
+    mae = np.mean(abs_error)
     return mae
 
 
@@ -371,7 +371,7 @@ mae(y_test, y_te_pred)
 # 
 # $$MSE = \frac{1}{n}\sum_i^n(y_i - \hat{y})^2$$
 
-# In[ ]:
+# In[25]:
 
 
 #Code task 8#
@@ -385,8 +385,8 @@ def mse(y, ypred):
     y -- the observed values
     ypred -- the predicted values
     """
-    sq_error = (___ - ___)**2
-    mse = np.mean(___)
+    sq_error = (y - ypred)**2
+    mse = np.mean(sq_error)
     return mse
 
 
@@ -504,21 +504,21 @@ X_defaults_median
 
 # ##### 4.8.1.1.2 Apply the imputation to both train and test splits<a id='4.8.1.1.2_Apply_the_imputation_to_both_train_and_test_splits'></a>
 
-# In[ ]:
+# In[37]:
 
 
 #Code task 9#
 #Call `X_train` and `X_test`'s `fillna()` method, passing `X_defaults_median` as the values to use
 #Assign the results to `X_tr` and `X_te`, respectively
-X_tr = X_train.___(___)
-X_te = X_test.___(___)
+X_tr = X_train.fillna(X_defaults_median)
+X_te = X_test.fillna(X_defaults_median)
 
 
 # ##### 4.8.1.1.3 Scale the data<a id='4.8.1.1.3_Scale_the_data'></a>
 
 # As you have features measured in many different units, with numbers that vary by orders of magnitude, start off by scaling them to put them all on a consistent scale. The [StandardScaler](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html) scales each feature to zero mean and unit variance.
 
-# In[ ]:
+# In[38]:
 
 
 #Code task 10#
@@ -526,9 +526,9 @@ X_te = X_test.___(___)
 #then use it's `transform()` method to apply the scaling to both the train and test split
 #data (`X_tr` and `X_te`), naming the results `X_tr_scaled` and `X_te_scaled`, respectively
 scaler = StandardScaler()
-scaler.___(X_tr)
-X_tr_scaled = scaler.___(X_tr)
-X_te_scaled = scaler.___(X_te)
+scaler.fit(X_tr)
+X_tr_scaled = scaler.transform(X_tr)
+X_te_scaled = scaler.transform(X_te)
 
 
 # ##### 4.8.1.1.4 Train the model on the train split<a id='4.8.1.1.4_Train_the_model_on_the_train_split'></a>
@@ -541,14 +541,14 @@ lm = LinearRegression().fit(X_tr_scaled, y_train)
 
 # ##### 4.8.1.1.5 Make predictions using the model on both train and test splits<a id='4.8.1.1.5_Make_predictions_using_the_model_on_both_train_and_test_splits'></a>
 
-# In[ ]:
+# In[40]:
 
 
 #Code task 11#
 #Call the `predict()` method of the model (`lm`) on both the (scaled) train and test data
 #Assign the predictions to `y_tr_pred` and `y_te_pred`, respectively
-y_tr_pred = lm.___(X_tr_scaled)
-y_te_pred = lm.___(X_te_scaled)
+y_tr_pred = lm.predict(X_tr_scaled)
+y_te_pred = lm.predict(X_te_scaled)
 
 
 # ##### 4.8.1.1.6 Assess model performance<a id='4.8.1.1.6_Assess_model_performance'></a>
@@ -563,26 +563,26 @@ median_r2
 
 # Recall that you estimated ticket price by simply using a known average. As expected, this produced an $R^2$ of zero for both the training and test set, because $R^2$ tells us how much of the variance you're explaining beyond that of using just the mean, and you were using just the mean. Here we see that our simple linear regression model explains over 80% of the variance on the train set and over 70% on the test set. Clearly you are onto something, although the much lower value for the test set suggests you're overfitting somewhat. This isn't a surprise as you've made no effort to select a parsimonious set of features or deal with multicollinearity in our data.
 
-# In[ ]:
+# In[42]:
 
 
 #Code task 12#
 #Now calculate the mean absolute error scores using `sklearn`'s `mean_absolute_error` function
 # as we did above for R^2
 # MAE - train, test
-median_mae = ___(y_train, y_tr_pred), ___(y_test, y_te_pred)
+median_mae = mean_absolute_error(y_train, y_tr_pred), mean_absolute_error(y_test, y_te_pred)
 median_mae
 
 
 # Using this model, then, on average you'd expect to estimate a ticket price within \\$9 or so of the real price. This is much, much better than the \\$19 from just guessing using the average. There may be something to this machine learning lark after all!
 
-# In[ ]:
+# In[43]:
 
 
 #Code task 13#
 #And also do the same using `sklearn`'s `mean_squared_error`
 # MSE - train, test
-median_mse = ___(___, ___), ___(___, ___)
+median_mse = mean_squared_error(y_train, y_tr_pred), mean_squared_error(y_train, y_tr_pred)
 median_mse
 
 
@@ -592,13 +592,13 @@ median_mse
 
 # ##### 4.8.1.2.1 Learn the values to impute from the train set<a id='4.8.1.2.1_Learn_the_values_to_impute_from_the_train_set'></a>
 
-# In[ ]:
+# In[44]:
 
 
 #Code task 14#
 #As we did for the median above, calculate mean values for imputing missing values
 # These are the values we'll use to fill in any missing values
-X_defaults_mean = X_train.___()
+X_defaults_mean = X_train.mean()
 X_defaults_mean
 
 
@@ -711,12 +711,12 @@ hasattr(pipe, 'fit'), hasattr(pipe, 'predict')
 
 # Here, a single call to the pipeline's `fit()` method combines the steps of learning the imputation (determining what values to use to fill the missing ones), the scaling (determining the mean to subtract and the variance to divide by), and then training the model. It does this all in the one call with the training data as arguments.
 
-# In[ ]:
+# In[55]:
 
 
 #Code task 15#
 #Call the pipe's `fit()` method with `X_train` and `y_train` as arguments
-pipe.___(___, ___)
+pipe.fit(X_train, y_train)
 
 
 # #### 4.8.2.3 Make predictions on the train and test sets<a id='4.8.2.3_Make_predictions_on_the_train_and_test_sets'></a>
@@ -750,12 +750,6 @@ median_r2
 mean_absolute_error(y_train, y_tr_pred), mean_absolute_error(y_test, y_te_pred)
 
 
-# In[ ]:
-
-
-Compare with your earlier result:
-
-
 # In[60]:
 
 
@@ -787,7 +781,7 @@ median_mse
 
 # Redefine your pipeline to include this feature selection step:
 
-# In[ ]:
+# In[63]:
 
 
 #Code task 16#
@@ -796,7 +790,7 @@ median_mse
 pipe = make_pipeline(
     SimpleImputer(strategy='median'), 
     StandardScaler(),
-    ___(___),
+    SelectKBest(f_regression),
     LinearRegression()
 )
 
@@ -807,6 +801,7 @@ pipe = make_pipeline(
 
 
 pipe.fit(X_train, y_train)
+print(X_train,y_train)
 
 
 # ### 4.9.3 Assess performance on the train and test set<a id='4.9.3_Assess_performance_on_the_train_and_test_set'></a>
@@ -834,7 +829,7 @@ mean_absolute_error(y_train, y_tr_pred), mean_absolute_error(y_test, y_te_pred)
 
 # ### 4.9.4 Define a new pipeline to select a different number of features<a id='4.9.4_Define_a_new_pipeline_to_select_a_different_number_of_features'></a>
 
-# In[ ]:
+# In[68]:
 
 
 #Code task 17#
@@ -842,7 +837,7 @@ mean_absolute_error(y_train, y_tr_pred), mean_absolute_error(y_test, y_te_pred)
 pipe15 = make_pipeline(
     SimpleImputer(strategy='median'), 
     StandardScaler(),
-    ___(___, k=___),
+    SelectKBest(f_regression, k=15),
     LinearRegression()
 )
 
@@ -925,13 +920,13 @@ np.round((np.mean(cv_scores) - 2 * np.std(cv_scores), np.mean(cv_scores) + 2 * n
 # 
 # You can also list the names of all the parameters in a pipeline like this:
 
-# In[ ]:
+# In[77]:
 
 
 #Code task 18#
 #Call `pipe`'s `get_params()` method to get a dict of available parameters and print their names
 #using dict's `keys()` method
-pipe.___.keys()
+pipe.get_params
 
 
 # The above can be particularly useful as your pipelines becomes more complex (you can even nest pipelines within pipelines).
@@ -966,20 +961,20 @@ score_std = lr_grid_cv.cv_results_['std_test_score']
 cv_k = [k for k in lr_grid_cv.cv_results_['param_selectkbest__k']]
 
 
-# In[ ]:
+# In[82]:
 
 
 #Code task 19#
 #Print the `best_params_` attribute of `lr_grid_cv`
-lr_grid_cv.___
+lr_grid_cv.best_params_
 
 
-# In[ ]:
+# In[83]:
 
 
 #Code task 20#
 #Assign the value of k from the above dict of `best_params_` and assign it to `best_k`
-___ = lr_grid_cv.___['selectkbest__k']
+best_k = lr_grid_cv.best_params_['selectkbest__k']
 plt.subplots(figsize=(10, 5))
 plt.errorbar(cv_k, score_mean, yerr=score_std)
 plt.axvline(x=best_k, c='r', ls='--', alpha=.5)
@@ -1000,7 +995,7 @@ selected = lr_grid_cv.best_estimator_.named_steps.selectkbest.get_support()
 
 # Similarly, instead of using the 'selectkbest' named step, you can access the named step for the linear regression model and, from that, grab the model coefficients via its `coef_` attribute:
 
-# In[ ]:
+# In[85]:
 
 
 #Code task 21#
@@ -1010,7 +1005,7 @@ selected = lr_grid_cv.best_estimator_.named_steps.selectkbest.get_support()
 #sorting the values in descending order
 coefs = lr_grid_cv.best_estimator_.named_steps.linearregression.coef_
 features = X_train.columns[selected]
-pd.Series(___, index=___).___(ascending=___)
+pd.Series(coefs, index=features).sort_values(ascending=False)
 
 
 # These results suggest that vertical drop is your biggest positive feature. This makes intuitive sense and is consistent with what you saw during the EDA work. Also, you see the area covered by snow making equipment is a strong positive as well. People like guaranteed skiing! The skiable terrain area is negatively associated with ticket price! This seems odd. People will pay less for larger resorts? There could be all manner of reasons for this. It could be  an effect whereby larger resorts can host more visitors at any one time and so can charge less per ticket. As has been mentioned previously, the data are missing information about visitor numbers. Bear in mind,  the coefficient for skiable terrain is negative _for this model_. For example, if you kept the total number of chairs and fastQuads constant, but increased the skiable terrain extent, you might imagine the resort is worse off because the chairlift capacity is stretched thinner.
@@ -1023,7 +1018,7 @@ pd.Series(___, index=___).___(ascending=___)
 
 # ### 4.10.1 Define the pipeline<a id='4.10.1_Define_the_pipeline'></a>
 
-# In[ ]:
+# In[86]:
 
 
 #Code task 22#
@@ -1032,22 +1027,22 @@ pd.Series(___, index=___).___(ascending=___)
 #StandardScaler(),
 #and then RandomForestRegressor() with a random state of 47
 RF_pipe = make_pipeline(
-    ___(strategy=___),
-    ___,
-    ___(random_state=___)
+    SimpleImputer(strategy='median'),
+    StandardScaler(),
+    RandomForestRegressor(random_state=47)
 )
 
 
 # ### 4.10.2 Fit and assess performance using cross-validation<a id='4.10.2_Fit_and_assess_performance_using_cross-validation'></a>
 
-# In[ ]:
+# In[87]:
 
 
 #Code task 23#
 #Call `cross_validate` to estimate the pipeline's performance.
 #Pass it the random forest pipe object, `X_train` and `y_train`,
 #and get it to use 5-fold cross-validation
-rf_default_cv_results = cross_validate(___, ___, ___, cv=___)
+rf_default_cv_results = cross_validate(RF_pipe, X_train, y_train, cv=5)
 
 
 # In[88]:
@@ -1079,30 +1074,30 @@ grid_params = {
 grid_params
 
 
-# In[ ]:
+# In[91]:
 
 
 #Code task 24#
 #Call `GridSearchCV` with the random forest pipeline, passing in the above `grid_params`
 #dict for parameters to evaluate, 5-fold cross-validation, and all available CPU cores (if desired)
-rf_grid_cv = GridSearchCV(___, param_grid=___, cv=___, n_jobs=-1)
+rf_grid_cv = GridSearchCV(RF_pipe, param_grid=grid_params, cv=5, n_jobs=-1)
 
 
-# In[ ]:
+# In[92]:
 
 
 #Code task 25#
 #Now call the `GridSearchCV`'s `fit()` method with `X_train` and `y_train` as arguments
 #to actually start the grid search. This may take a minute or two.
-rf_grid_cv.___(___, ___)
+rf_grid_cv.fit(X_train, y_train)
 
 
-# In[ ]:
+# In[93]:
 
 
 #Code task 26#
 #Print the best params (`best_params_` attribute) from the grid search
-rf_grid_cv.___
+rf_grid_cv.best_params_
 
 
 # It looks like imputing with the median helps, but scaling the features doesn't.
@@ -1123,7 +1118,7 @@ np.mean(rf_best_scores), np.std(rf_best_scores)
 
 # You've marginally improved upon the default CV results. Random forest has many more hyperparameters you could tune, but we won't dive into that here.
 
-# In[ ]:
+# In[96]:
 
 
 #Code task 27#
@@ -1133,8 +1128,8 @@ np.mean(rf_best_scores), np.std(rf_best_scores)
 #create a pandas Series object of the feature importances, with the index given by the
 #training data column names, sorting the values in descending order
 plt.subplots(figsize=(10, 5))
-imps = rf_grid_cv.best_estimator_.named_steps.randomforestregressor.___
-rf_feat_imps = pd.Series(___, index=X_train.columns).sort_values(ascending=False)
+imps = rf_grid_cv.best_estimator_.named_steps.randomforestregressor.feature_importances_
+rf_feat_imps = pd.Series(imps, index=X_train.columns).sort_values(ascending=False)
 rf_feat_imps.plot(kind='bar')
 plt.xlabel('features')
 plt.ylabel('importance')
@@ -1240,7 +1235,7 @@ plt.title('Cross-validation score as training set size increases');
 
 # ## 4.13 Save best model object from pipeline<a id='4.13_Save_best_model_object_from_pipeline'></a>
 
-# In[ ]:
+# In[105]:
 
 
 #Code task 28#
@@ -1254,12 +1249,12 @@ plt.title('Cross-validation score as training set size increases');
 #and the current datetime (`datetime.datetime.now()`) to the `build_datetime` attribute
 #Let's call this model version '1.0'
 best_model = rf_grid_cv.best_estimator_
-best_model.version = ___
-best_model.pandas_version = ___
-best_model.numpy_version = ___
-best_model.sklearn_version = ___
+best_model.version = '1.0'
+best_model.pandas_version = pd.__version__
+best_model.numpy_version = np.__version__
+best_model.sklearn_version = sklearn_version
 best_model.X_columns = [col for col in X_train.columns]
-best_model.build_datetime = ___
+best_model.build_datetime = datetime.datetime.now()
 
 
 # In[ ]:
@@ -1275,4 +1270,52 @@ save_file(best_model, 'ski_resort_pricing_model.pkl', modelpath)
 
 # **Q: 1** Write a summary of the work in this notebook. Capture the fact that you gained a baseline idea of performance by simply taking the average price and how well that did. Then highlight that you built a linear model and the features that found. Comment on the estimate of its performance from cross-validation and whether its performance on the test split was consistent with this estimate. Also highlight that a random forest regressor was tried, what preprocessing steps were found to be best, and again what its estimated performance via cross-validation was and whether its performance on the test set was consistent with that. State which model you have decided to use going forwards and why. This summary should provide a quick overview for someone wanting to know quickly why the given model was chosen for the next part of the business problem to help guide important business decisions.
 
-# **A: 1** Your answer here
+# We loaded the cleaned ski data file and divided into a 70/30 train/test split
+# 	Metrics used include:
+# 		Coefficient of Determination, Mean Absolute Error, and Mean Squared Error
+# 
+# 	Our baseline performance using the Dummy Regressor and MeanAbsoluteError informs use that we might expect to be off by $19 if we guess ticket price based on average of known values. 
+# 
+# Linear Regression
+# We ran Linear regression model on train set. 
+# 	The MAE on the train set was  8.7 and on test set 9.8. when using the median and mean to fill na’s 
+# 
+# We define a pipeline  to streamline this process. 
+# 
+# We modify pipline to select K=15 best features. 
+# 
+# We use cross validation to divide the data into 4 training sets and 1 test set 
+# These results highlight that assessing model performance in inherently open to variability.
+# 
+# Now we can loop over the above pipline and cross validation process to identity what variation of model is best. 
+# 
+# This hyper parameter search reveals that the optimal number of parameters is 8 these are as follows: 
+# vertical_drop        10.767857
+# Snow Making_ac        6.290074
+# total_chairs          5.794156
+# fastQuads             5.745626
+# Runs                  5.370555
+# LongestRun_mi         0.181814
+# trams                -4.142024
+# SkiableTerrain_ac    -5.249780
+# 
+# 
+# Random Forest Model
+# We then modify pipeline by switching from Linear Regression to RandomForestRegression. 
+# We perform 5-fold cross-validation
+# We do not use feature scaling. 
+# We use median to fill missing values.
+# Dominant top four features are fastQuads
+# •	Runs
+# •	Snow Making_ac
+# •	vertical_drop
+# 
+# The Random forest regression has less mean absolue error than linear regression. Therefore we use the Random forest Regression model. 
+# 
+# 
+
+# In[ ]:
+
+
+
+
